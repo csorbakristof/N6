@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N6 Task Manager</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header & Reminder Section -->
+        <header>
+            <h1>N6 Task Manager</h1>
+            <button id="settings-btn" aria-label="Manage Methodologies">⚙️</button>
+        </header>
+
+        <!-- Reminder Banner -->
+        <div id="reminder-banner" class="reminder-banner unread">
+            <span id="reminder-dot" class="dot"></span>
+            <div id="reminder-text">Loading reminder...</div>
+        </div>
+
+        <!-- The N6 Priority Queue -->
+        <main>
+            <p class="subtitle">Strict Priority Queue (Max 6)</p>
+            <ul id="n6-list">
+                <!-- Dynamically populated via JS -->
+            </ul>
+        </main>
+    </div>
+
+    <!-- Methodology Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Methodology Reminders</h2>
+                <button id="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="add-methodology">
+                    <input type="text" id="new-methodology-input" placeholder="Enter a rule to keep in mind...">
+                    <button id="add-methodology-btn">Add</button>
+                </div>
+                <ul id="methodology-list">
+                    <!-- Dynamically populated -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
