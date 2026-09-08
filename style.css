@@ -23,12 +23,17 @@ body {
     display: flex;
     justify-content: center;
     min-height: 100vh;
-    padding: 20px;
+    min-height: 100dvh;
+    padding: 0;
 }
 
 .app-container {
     width: 100%;
-    max-width: 500px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+    display: flex;
+    flex-direction: column;
 }
 
 header {
@@ -99,11 +104,15 @@ h1 {
 #n6-list {
     list-style: none;
     display: flex;
+    flex: 1;
     flex-direction: column;
     gap: 10px;
+    min-height: 0;
 }
 
 .task-item {
+    flex: 1;
+    min-height: 48px;
     background-color: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -242,4 +251,11 @@ h1 {
     border: none;
     color: var(--danger);
     cursor: pointer;
+}
+
+@media (min-width: 900px) {
+    .app-container {
+        padding-left: 48px;
+        padding-right: 48px;
+    }
 }
