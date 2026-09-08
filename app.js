@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'n6_app_data';
+const REMINDERS_FILE = 'method-reminders.txt';
 
 // Default Data State
 let appData = {
@@ -12,8 +13,11 @@ let appData = {
 };
 
 // Initialize App
-function init() {
-    loadData();
+async function init() {
+    const hasSavedData = loadData();
+    if (!hasSavedData) {
+        await loadMethodologiesFromFile();
+    }
     checkRollover();
     selectRandomReminder();
     renderTasks();
@@ -32,9 +36,35 @@ function loadData() {
     if (saved) {
         try {
             appData = JSON.parse(saved);
+            return true;
         } catch (e) {
             console.error("Failed to load local storage data", e);
         }
+    }
+    return false;
+}
+
+async function loadMethodologiesFromFile() {
+    try {
+        const response = await fetch(REMINDERS_FILE);
+        if (!response.ok) {
+            throw new Error(`Failed to load ${REMINDERS_FILE}: ${response.status}`);
+        }
+
+        const text = await response.text();
+        const reminders = text
+            .split(/\r?\n/)
+            .map(line => line.trim())
+            .filter(Boolean);
+
+        if (reminders.length > 0) {
+            appData.methodologies = reminders.map((reminder, index) => ({
+                id: `m${index + 1}`,
+                text: reminder
+            }));
+        }
+    } catch (error) {
+        console.error('Failed to load initial reminders', error);
     }
 }
 

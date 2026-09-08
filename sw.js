@@ -6,6 +6,7 @@ self.addEventListener('install', (e) => {
                 'style.css',
                 'app.js',
                 'manifest.json',
+                'method-reminders.txt',
                 'n6-icon-32.png',
                 'n6-icon-192.png',
                 'n6-icon-512.png'
