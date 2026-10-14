@@ -57,6 +57,15 @@
     <script src="app.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
+            // When an updated service worker takes over an open page, reload once to run the new files
+            const hadController = !!navigator.serviceWorker.controller;
+            let reloaded = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (hadController && !reloaded) {
+                    reloaded = true;
+                    location.reload();
+                }
+            });
             navigator.serviceWorker.register('sw.js');
         }
     </script>
