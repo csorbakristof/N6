@@ -1,4 +1,4 @@
-const CACHE_NAME = 'n6-store-v2';
+const CACHE_NAME = 'n6-store-v3';
 
 self.addEventListener('install', (e) => {
     e.waitUntil(
