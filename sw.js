@@ -1,6 +1,8 @@
+const CACHE_NAME = 'n6-store-v2';
+
 self.addEventListener('install', (e) => {
     e.waitUntil(
-        caches.open('n6-store').then((cache) => {
+        caches.open(CACHE_NAME).then((cache) => {
             return cache.addAll([
                 'index.html',
                 'style.css',
@@ -12,6 +14,14 @@ self.addEventListener('install', (e) => {
                 'n6-icon-512.png'
             ]);
         })
+    );
+});
+
+self.addEventListener('activate', (e) => {
+    e.waitUntil(
+        caches.keys().then((keys) => Promise.all(
+            keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        ))
     );
 });
 

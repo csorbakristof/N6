@@ -29,6 +29,9 @@ async function init() {
     document.getElementById('close-modal-btn').addEventListener('click', toggleModal);
     document.getElementById('add-methodology-btn').addEventListener('click', addMethodology);
     document.getElementById('reminder-banner').addEventListener('click', markReminderRead);
+    document.getElementById('export-reminders-btn').addEventListener('click', exportMethodologies);
+    document.getElementById('import-reminders-btn').addEventListener('click', () => document.getElementById('import-reminders-file').click());
+    document.getElementById('import-reminders-file').addEventListener('change', importMethodologies);
 }
 
 function loadData() {
@@ -51,12 +54,7 @@ async function loadMethodologiesFromFile() {
             throw new Error(`Failed to load ${REMINDERS_FILE}: ${response.status}`);
         }
 
-        const text = await response.text();
-        const reminders = text
-            .split(/\r?\n/)
-            .map(line => line.trim())
-            .filter(Boolean);
-
+        const reminders = parseReminderLines(await response.text());
         if (reminders.length > 0) {
             appData.methodologies = reminders.map((reminder, index) => ({
                 id: `m${index + 1}`,
@@ -66,6 +64,13 @@ async function loadMethodologiesFromFile() {
     } catch (error) {
         console.error('Failed to load initial reminders', error);
     }
+}
+
+function parseReminderLines(text) {
+    return text
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(Boolean);
 }
 
 function saveData() {
@@ -203,6 +208,34 @@ window.deleteMethodology = function(id) {
     saveData();
     renderMethodologies();
 };
+
+// Reminder Backup: plain text, one reminder per line (same format as method-reminders.txt)
+function exportMethodologies() {
+    const text = appData.methodologies.map(m => m.text).join('\n') + '\n';
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+    link.download = `n6-reminders-${new Date().toISOString().split('T')[0]}.txt`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 0);
+}
+
+async function importMethodologies(e) {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+
+    const reminders = parseReminderLines(await file.text());
+    if (reminders.length === 0) {
+        alert('No reminders found in this file.');
+        return;
+    }
+    if (!confirm(`Replace your ${appData.methodologies.length} reminders with the ${reminders.length} in this file?`)) return;
+
+    const stamp = Date.now();
+    appData.methodologies = reminders.map((text, index) => ({ id: `m_${stamp}_${index}`, text }));
+    saveData();
+    renderMethodologies();
+}
 
 function escapeHtml(str) {
     return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");

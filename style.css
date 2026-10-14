@@ -253,6 +253,26 @@ h1 {
     cursor: pointer;
 }
 
+.backup-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.backup-actions button {
+    flex: 1;
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.backup-actions button:hover {
+    border-color: var(--accent);
+}
+
 @media (min-width: 900px) {
     .app-container {
         padding-left: 48px;
