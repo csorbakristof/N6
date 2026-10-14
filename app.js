@@ -129,15 +129,20 @@ function renderReminder() {
 }
 
 // Render Tasks (N6 Queue)
+let isRenderingTasks = false;
+
 function renderTasks() {
     const listEl = document.getElementById('n6-list');
+    isRenderingTasks = true;
     listEl.innerHTML = '';
+    isRenderingTasks = false;
 
     appData.tasks.forEach((task, index) => {
         const li = document.createElement('li');
         li.className = `task-item ${task.completed ? 'completed' : ''}`;
 
         li.innerHTML = `
+            <span class="drag-handle" data-index="${index}" title="Drag to reorder (or Alt+↑/↓)" aria-hidden="true">⠿</span>
             <span class="task-number">${index + 1}.</span>
             <input type="text" class="task-input" value="${escapeHtml(task.text)}" placeholder="Task ${index + 1}..." data-index="${index}">
             <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} data-index="${index}">
@@ -147,7 +152,15 @@ function renderTasks() {
 
     // Attach listeners to dynamic elements
     document.querySelectorAll('.task-input').forEach(input => {
-        input.addEventListener('blur', (e) => updateTaskText(e.target.dataset.index, e.target.value));
+        input.addEventListener('blur', (e) => {
+            // Removing a focused input fires blur with a stale slot index; skip it while re-rendering
+            if (!isRenderingTasks) updateTaskText(e.target.dataset.index, e.target.value);
+        });
+        input.addEventListener('keydown', handleTaskKeydown);
+    });
+
+    document.querySelectorAll('.drag-handle').forEach(handle => {
+        handle.addEventListener('pointerdown', startDrag);
     });
 
     document.querySelectorAll('.task-checkbox').forEach(box => {
@@ -164,6 +177,67 @@ function toggleTaskComplete(index, isCompleted) {
     appData.tasks[index].completed = isCompleted;
     saveData();
     renderTasks();
+}
+
+// Task Reordering
+function moveTask(from, to) {
+    if (from === to || to < 0 || to >= appData.tasks.length) return false;
+    syncTaskInputs();
+    const [task] = appData.tasks.splice(from, 1);
+    appData.tasks.splice(to, 0, task);
+    saveData();
+    renderTasks();
+    return true;
+}
+
+// Capture typed text that has not been saved by a blur yet, so re-rendering does not lose it
+function syncTaskInputs() {
+    document.querySelectorAll('.task-input').forEach(input => {
+        appData.tasks[input.dataset.index].text = input.value;
+    });
+}
+
+function handleTaskKeydown(e) {
+    if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+    e.preventDefault();
+    const from = Number(e.target.dataset.index);
+    const to = from + (e.key === 'ArrowUp' ? -1 : 1);
+    if (moveTask(from, to)) {
+        document.querySelector(`.task-input[data-index="${to}"]`).focus();
+    }
+}
+
+function startDrag(e) {
+    e.preventDefault();
+    const handle = e.currentTarget;
+    const from = Number(handle.dataset.index);
+    const items = [...document.querySelectorAll('.task-item')];
+    const dragged = items[from];
+    let target = from;
+
+    handle.setPointerCapture(e.pointerId);
+    dragged.classList.add('dragging');
+
+    const onMove = (ev) => {
+        target = items.findIndex(li => ev.clientY < li.getBoundingClientRect().bottom);
+        if (target === -1) target = items.length - 1;
+        items.forEach((li, i) => li.classList.toggle('drop-target', i === target && i !== from));
+    };
+    const onUp = () => {
+        handle.removeEventListener('pointermove', onMove);
+        handle.removeEventListener('pointerup', onUp);
+        handle.removeEventListener('pointercancel', onCancel);
+        items.forEach(li => li.classList.remove('dragging', 'drop-target'));
+        moveTask(from, target);
+    };
+    const onCancel = () => {
+        target = from;
+        onUp();
+    };
+
+    handle.addEventListener('pointermove', onMove);
+    handle.addEventListener('pointerup', onUp);
+    handle.addEventListener('pointercancel', onCancel);
 }
 
 // Methodology Manager Operations

@@ -8,6 +8,7 @@ The app runs entirely in the browser. Tasks and methodology reminders are saved 
 
 - Six fixed task slots, ordered by priority
 - Inline task editing with automatic saving
+- Reorder tasks by dragging the handle (mouse or touch) or with Alt+↑ / Alt+↓
 - Completion checkboxes with a visual completed state
 - Daily rollover that carries unfinished, non-empty tasks into the next day
 - Random methodology reminders with an unread indicator
@@ -59,6 +60,15 @@ All application data is stored in the browser under the `n6_app_data` localStora
 
 No task or reminder data is sent to a remote service.
 
+## Tests
+
+Browser tests use Playwright with Chromium:
+
+```bash
+npm install
+npm test
+```
+
 ## Project Structure
 
 | File | Purpose |
@@ -68,6 +78,7 @@ No task or reminder data is sent to a remote service.
 | `app.js` | Task, reminder, persistence, and rollover logic |
 | `manifest.json` | Installable PWA metadata |
 | `sw.js` | Offline cache and network fallback |
+| `tests/` | Playwright browser tests |
 
 ## Technology
 
