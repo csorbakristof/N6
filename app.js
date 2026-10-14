@@ -19,7 +19,7 @@ async function init() {
         await loadMethodologiesFromFile();
     }
     checkRollover();
-    selectRandomReminder();
+    selectNextReminder();
     renderTasks();
     renderMethodologies();
     renderReminder();
@@ -100,14 +100,18 @@ function checkRollover() {
 }
 
 // Reminder Logic
-function selectRandomReminder() {
-    if (appData.methodologies.length === 0) {
+// Walks the reminder list in a circle, randomly stepping 1 or 2 (skipping one) each time
+function selectNextReminder() {
+    const reminders = appData.methodologies;
+    if (reminders.length === 0) {
         appData.currentReminder = { id: null, text: 'Add methodologies in settings.', read: true };
         return;
     }
-    const randomIndex = Math.floor(Math.random() * appData.methodologies.length);
-    const chosen = appData.methodologies[randomIndex];
-    
+    const currentIndex = reminders.findIndex(m => m.id === appData.currentReminder?.id);
+    const step = Math.random() < 0.5 ? 1 : 2;
+    // currentIndex is -1 on first run or after the current reminder was deleted, so the walk restarts near the top
+    const chosen = reminders[(currentIndex + step) % reminders.length];
+
     // Only flag as unread if it's a different reminder than before
     if (!appData.currentReminder || appData.currentReminder.id !== chosen.id) {
         appData.currentReminder = { id: chosen.id, text: chosen.text, read: false };

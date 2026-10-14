@@ -10,7 +10,7 @@ The app runs entirely in the browser. Tasks and methodology reminders are saved 
 - Inline task editing with automatic saving
 - Completion checkboxes with a visual completed state
 - Daily rollover that carries unfinished, non-empty tasks into the next day
-- Random methodology reminders with an unread indicator
+- Rotating methodology reminders with an unread indicator
 - Add and delete reminders from the settings modal
 - Export and import reminders as a text file for backup
 - Responsive layout for desktop and mobile screens
@@ -39,7 +39,7 @@ N6 always renders six numbered task slots. When the app opens on a new calendar 
 
 ### Methodology reminders
 
-Open the settings button to add or remove short reminders. Export saves them as a plain text file with one reminder per line (the same format as `method-reminders.txt`); Import replaces the current reminders with the lines of such a file after a confirmation. On startup, N6 selects a reminder at random. A blue indicator marks a reminder as unread; clicking the reminder marks it as read.
+Open the settings button to add or remove short reminders. Export saves them as a plain text file with one reminder per line (the same format as `method-reminders.txt`); Import replaces the current reminders with the lines of such a file after a confirmation. On startup, N6 shows the next reminder in the list, wrapping around at the end. Each time there is a 50% chance it skips one and shows the reminder after that instead. A blue indicator marks a reminder as unread; clicking the reminder marks it as read.
 
 ### Local storage
 
